@@ -58,9 +58,6 @@ e = executable(
   sources : [
     'gs-drop-shadow.c'
   ],
-  include_directories : [
-    include_directories('..'),
-  ],
   dependencies : [
     libcairo,
     libglib,
