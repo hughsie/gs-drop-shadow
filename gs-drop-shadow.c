@@ -7,7 +7,7 @@
 #include <glib.h>
 
 static cairo_surface_t *
-gs_cairo_surface_blur (cairo_surface_t *surface, gint radius)
+gs_utils_surface_blur (cairo_surface_t *surface, gint radius)
 {
 	cairo_surface_t *tmp;
 	gint width, height;
@@ -89,14 +89,14 @@ gs_cairo_surface_blur (cairo_surface_t *surface, gint radius)
 }
 
 static cairo_surface_t *
-gs_cairo_surface_make_blurred_shadow (cairo_surface_t *surface, gint radius)
+gs_utils_surface_make_blurred_shadow (cairo_surface_t *surface, gint radius)
 {
 	cairo_surface_t *tmp;
 	gint width, height, stride;
 	guint8 *p;
 
 	/* blur into new surface */
-	tmp = gs_cairo_surface_blur (surface, radius);
+	tmp = gs_utils_surface_blur (surface, radius);
 	if (tmp == NULL)
 		return NULL;
 
@@ -122,7 +122,7 @@ typedef struct __attribute__((packed)) {
 } cairo_format_argb_t;
 
 static guint
-gs_cairo_surface_get_shadow_pixels (cairo_surface_t *surface)
+gs_utils_surface_get_shadow_pixels (cairo_surface_t *surface)
 {
 	guint cnt = 0;
 	gint width, height, stride;
@@ -153,7 +153,7 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC(cairo_surface_t, cairo_surface_destroy)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(cairo_t, cairo_destroy)
 
 static cairo_surface_t *
-gs_cairo_surface_add_drop_shadow (cairo_surface_t *surface_src)
+gs_utils_surface_add_drop_shadow (cairo_surface_t *surface_src)
 {
 	g_autoptr(cairo_surface_t) surface_blur1 = NULL;
 	g_autoptr(cairo_surface_t) surface_blur2 = NULL;
@@ -167,10 +167,10 @@ gs_cairo_surface_add_drop_shadow (cairo_surface_t *surface_src)
 	cr = cairo_create (surface_dst);
 
 	/* paint shadows */
-	surface_blur1 = gs_cairo_surface_make_blurred_shadow (surface_src, 12);
+	surface_blur1 = gs_utils_surface_make_blurred_shadow (surface_src, 12);
 	cairo_set_source_surface (cr, surface_blur1, 0, 2);
 	cairo_paint_with_alpha (cr, 0.2);
-	surface_blur2 = gs_cairo_surface_make_blurred_shadow (surface_src, 2);
+	surface_blur2 = gs_utils_surface_make_blurred_shadow (surface_src, 2);
 	cairo_set_source_surface (cr, surface_blur2, 0, 1);
 	cairo_paint_with_alpha (cr, 0.7);
 
@@ -202,13 +202,13 @@ main (int argc, char **argv)
 			g_printerr ("cannot load: %s\n", argv[i]);
 			continue;
 		}
-		shadow_pixels = gs_cairo_surface_get_shadow_pixels (surface_src);
+		shadow_pixels = gs_utils_surface_get_shadow_pixels (surface_src);
 		if (shadow_pixels > shadow_pixels_limit) {
 			g_print ("skipping as already has %u shadow pixels: %s\n",
 				 shadow_pixels, argv[i]);
 			continue;
 		}
-		surface_dst = gs_cairo_surface_add_drop_shadow (surface_src);
+		surface_dst = gs_utils_surface_add_drop_shadow (surface_src);
 		g_print ("adding drop shadow to %s as has %u shadow pixels\n",
 			 argv[i], shadow_pixels);
 		rc = cairo_surface_write_to_png (surface_dst, argv[i]);
