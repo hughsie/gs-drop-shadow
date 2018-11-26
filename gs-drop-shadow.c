@@ -1,4 +1,8 @@
-//gcc -o test test.c `pkg-config --libs --cflags cairo glib-2.0` -lm && ./test
+/*
+ * Copyright (C) 2018 Richard Hughes <richard@hughsie.com>
+ *
+ * SPDX-License-Identifier: LGPL-2.1+
+ */
 
 #include <cairo.h>
 #include <string.h>
